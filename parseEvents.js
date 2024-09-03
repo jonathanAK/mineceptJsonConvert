@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+
 // Process command line arguments
 const args = process.argv.slice(2);
 const jsonDirPath = args[0]; // First argument: JSON source directory
@@ -12,7 +13,7 @@ const combineJson = (combinedData, dirPath) => {
     }
 
     const files = fs.readdirSync(dirPath);
-    let eventData= {}
+    let eventData= {};
     files.forEach(file => {
         try{
             const filePath = path.join(dirPath, file);
@@ -25,7 +26,8 @@ const combineJson = (combinedData, dirPath) => {
                 const creationTimeUnix = Math.floor(new Date(stats.birthtime).getTime() / 1000);
                 const jsonData = JSON.parse(fileData);
                 const msgId = jsonData.msgId;
-                if(msgId != eventData.msgId){
+                const seenMsg = msgId !== eventData.msgId && eventData.time + 10 < creationTimeUnix;
+                if(seenMsg){
                     combinedData.push(eventData);
                     eventData = {
                         msgId: jsonData.msgId,
@@ -35,9 +37,10 @@ const combineJson = (combinedData, dirPath) => {
                     };
                 }else{
                     eventData.Severity= Math.max(eventData.Severity, jsonData.Severity);
-                    eventData.typeOfEvent=  Math.max(eventData.typeOfEvent, jsonData.typeOfEvent);
                 }
             }
+            combinedData.push(eventData);
+            combinedData.shift() ;
         }catch (e) {
             console.log(`${dirPath}/${file}:\n${e}`)
         }
