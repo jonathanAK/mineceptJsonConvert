@@ -27,7 +27,7 @@ const combineJson = (combinedData, dirPath) => {
                 const jsonData = JSON.parse(fileData);
                 const msgId = jsonData.msgId;
                 const seenMsg = msgId !== eventData.msgId || eventData.time + 10 < creationTimeUnix;
-                if(seenMsg){
+                if(!seenMsg){
                     combinedData.push(eventData);
                     eventData = {
                         msgId: jsonData.msgId,
