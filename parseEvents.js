@@ -26,7 +26,7 @@ const combineJson = (combinedData, dirPath) => {
                 const creationTimeUnix = Math.floor(new Date(stats.birthtime).getTime() / 1000);
                 const jsonData = JSON.parse(fileData);
                 const msgId = jsonData.msgId;
-                const seenMsg = msgId !== eventData.msgId && eventData.time + 10 < creationTimeUnix;
+                const seenMsg = msgId !== eventData.msgId || eventData.time + 10 < creationTimeUnix;
                 if(seenMsg){
                     combinedData.push(eventData);
                     eventData = {
