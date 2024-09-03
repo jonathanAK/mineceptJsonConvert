@@ -12,6 +12,7 @@ const combineJson = (combinedData, dirPath) => {
     }
 
     const files = fs.readdirSync(dirPath);
+    let eventData= {}
     files.forEach(file => {
         try{
             const filePath = path.join(dirPath, file);
@@ -23,13 +24,19 @@ const combineJson = (combinedData, dirPath) => {
                 // Convert birthtime to Unix timestamp
                 const creationTimeUnix = Math.floor(new Date(stats.birthtime).getTime() / 1000);
                 const jsonData = JSON.parse(fileData);
-                const eventData = {
-                    Severity: jsonData.Severity,
-                    typeOfEvent: jsonData.typeOfEvent,
-                    time: creationTimeUnix
-                };
-                // Combine json data
-                combinedData.push(eventData);
+                const msgId = jsonData.msgId;
+                if(msgId != eventData.msgId){
+                    combinedData.push(eventData);
+                    eventData = {
+                        msgId: jsonData.msgId,
+                        Severity: jsonData.Severity,
+                        typeOfEvent: jsonData.typeOfEvent,
+                        time: creationTimeUnix
+                    };
+                }else{
+                    eventData.Severity= Math.max(eventData.Severity, jsonData.Severity);
+                    eventData.typeOfEvent=  Math.max(eventData.typeOfEvent, jsonData.typeOfEvent);
+                }
             }
         }catch (e) {
             console.log(`${dirPath}/${file}:\n${e}`)
