@@ -24,10 +24,14 @@ const combineJson = () => {
         // Read file if it is a JSON file
         if (path.extname(file) === '.json') {
             const fileData = fs.readFileSync(filePath);
+            const stats = fs.statSync(filePath);
+            // Convert birthtime to Unix timestamp
+            const creationTimeUnix = Math.floor(new Date(stats.birthtime).getTime() / 1000);
             const jsonData = JSON.parse(fileData);
             const eventData = {
                 Severity: jsonData.Severity,
                 typeOfEvent: jsonData.typeOfEvent,
+                time: creationTimeUnix
             };
             // Combine json data
             combinedData.push(eventData);
