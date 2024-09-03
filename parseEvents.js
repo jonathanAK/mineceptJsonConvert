@@ -23,30 +23,31 @@ const combineJson = (combinedData, dirPath) => {
                 const fileData = fs.readFileSync(filePath);
                 const stats = fs.statSync(filePath);
                 // Convert birthtime to Unix timestamp
-                const creationTimeUnix = Math.floor(new Date(stats.birthtime).getTime() / 1000);
+                const creationTimeUnix = Math.floor(stats.mtimeMs / 1000);
                 const jsonData = JSON.parse(fileData);
-                const msgId = jsonData.msgId;
-                const seenMsg = msgId !== eventData.msgId || eventData.time + 10 < creationTimeUnix;
+                const msgId = file.split('.')[0];
+                // const msgId = jsonData.msgId;
+                const seenMsg = msgId === eventData.msgId && eventData.time + 10 < creationTimeUnix && eventData.typeOfEvent === jsonData.typeOfEvent;
                 if(!seenMsg){
                     combinedData.push(eventData);
                     eventData = {
-                        msgId: jsonData.msgId,
+                        msgId,
                         Severity: jsonData.Severity,
                         typeOfEvent: jsonData.typeOfEvent,
-                        time: creationTimeUnix
+                        time: creationTimeUnix,
+                        description: msgId.slice(-7),
                     };
                 }else{
                     eventData.Severity= Math.max(eventData.Severity, jsonData.Severity);
                 }
             }
-            combinedData.push(eventData);
-            combinedData.shift() ;
         }catch (e) {
             console.log(`${dirPath}/${file}:\n${e}`)
         }
 
     });
-
+    combinedData.push(eventData);
+    combinedData.shift();
 };
 
 
