@@ -31,11 +31,24 @@ const combineJson = (combinedData, dirPath) => {
                 if(!seenMsg){
                     combinedData.push(eventData);
                     eventData = {
-                        msgId,
-                        Severity: jsonData.Severity,
-                        typeOfEvent: jsonData.typeOfEvent,
-                        time: creationTimeUnix,
-                        description: msgId.slice(-7),
+                        id: msgId,
+                        geom: '',
+                        type_of_event: jsonData.typeOfEvent,
+                        event_description: '',
+                        severity: jsonData.Severity,
+                        speed: 0,
+                        distance: 0,
+                        angle: 0,
+                        other: `Distance: ?[m]   [#2][UniqueID:${msgId.slice(-7)}]`,
+                        remarks: null,
+                        created_by: '', // ???
+                        operator_id: '', // ???
+                        disable_by: null,
+                        is_active: true,
+                        creation_time: creationTimeUnix,
+                        inactive_time: null,
+                        is_position_valid: false,
+                        clip_id: msgId,
                     };
                 }else{
                     eventData.Severity= Math.max(eventData.Severity, jsonData.Severity);
@@ -50,7 +63,13 @@ const combineJson = (combinedData, dirPath) => {
     combinedData.shift();
 };
 
-
+const toCsvString = (data) => {
+    let str = '';
+    data.forEach((row)=>{
+        str = str + `${row.id},,${row.type_of_event},${row.event_description},${row.severity},${row.speed},${row.distance},${row.angle},${row.other},${row.remarks},${row.created_by},"",NULL,True,${row.creation_time},NULL,True,${row.id}\n`;
+    })
+    return str;
+}
 const checkFolders = () => {
     // Determine the complete path for the output
     const outputPath = path.resolve(outputFilePath);
@@ -62,7 +81,9 @@ const checkFolders = () => {
     const folders = fs.readdirSync(jsonDirPath);
     folders.forEach((dir)=>{
         combineJson(combinedData, `${jsonDirPath}/${dir}`)
+        const csv = toCsvString(combinedData);
         fs.writeFileSync(`${outputPath}/${dir}.json`, JSON.stringify(combinedData, null, 4))
+        fs.writeFileSync(`${outputPath}/${dir}.csv`, csv)
         console.log(`Combined JSON saved to ${outputPath}/${dir}.json`);
         combinedData = [];
     });
