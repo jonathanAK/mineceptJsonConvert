@@ -66,7 +66,7 @@ const combineJson = (combinedData, dirPath) => {
 const toCsvString = (data) => {
     let str = '';
     data.forEach((row)=>{
-        str = str + `"${row.id}",,${row.type_of_event},"${row.event_description}",${row.severity},${row.speed},${row.distance},${row.angle},"${row.other}",NULL,"${row.created_by}","",NULL,True,${row.creation_time},NULL,False,${row.id}\n`;
+        str = str + `"${row.id}",NULL,${row.type_of_event},"${row.event_description}",${row.severity},${row.speed},${row.distance},${row.angle},"${row.other}",NULL,"${row.created_by}","",NULL,True,${row.creation_time},NULL,False,${row.id}\n`;
     })
     return str;
 }
